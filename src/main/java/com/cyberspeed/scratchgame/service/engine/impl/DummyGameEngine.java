@@ -13,21 +13,25 @@ public class DummyGameEngine implements IGameEngine<String, Map<String, List<Str
 
   @Override
   public List<List<String>> getMatrix() {
-    return List.of();
+    return List.of(
+        List.of("A", "B", "C"),
+        List.of("E", "B", "10x"),
+        List.of("F", "D", "B")
+    );
   }
 
   @Override
   public Map<String, List<String>> getWinCombinations(List<List<String>> matrix) {
-    return Map.of();
+    return Map.of("B", List.of("same_symbol_5_times"));
   }
 
   @Override
   public Long getReward(Long betAmount, Map<String, List<String>> winCombinations, String bonus) {
-    return 1000L;
+    return 50000L;
   }
 
   @Override
   public String getBonus(List<List<String>> matrix) {
-    return "";
+    return "10x";
   }
 }
