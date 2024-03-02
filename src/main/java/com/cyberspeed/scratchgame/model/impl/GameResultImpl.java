@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class GameResultImpl implements GameResult {
 
   private List<List<String>> matrix;
-  private Long reward;
+  private Double reward;
   private Map<String, List<String>> appliedWinningCombinations;
   private String appliedBonusSymbol;
 }

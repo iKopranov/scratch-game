@@ -14,7 +14,7 @@ class GameProcessorImplTest {
     // given
     final var gameProcessor = new GameProcessorImpl(new DummyGameEngine());
     // when
-    final var result = gameProcessor.bet(1000L);
+    final var result = gameProcessor.bet(1000d);
     // then
     var expectedMatrix = List.of(
         List.of("A", "B", "C"),

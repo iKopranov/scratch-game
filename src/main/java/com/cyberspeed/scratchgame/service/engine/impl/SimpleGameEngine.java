@@ -7,6 +7,7 @@ import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.engine.IGameEngine;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 
 public class SimpleGameEngine 
@@ -27,13 +28,31 @@ public class SimpleGameEngine
 
   @Override
   public Map<String, List<WinCombination>> getWinCombinations(List<List<String>> matrix) {
-    
     return null;
   }
 
+  private static Double getCombinationsMultiplier(List<WinCombination> combinations) {
+    return combinations.stream()
+        .map(WinCombination::getRewardMultiplier)
+        .reduce((aRewMultiplier, bRewMultiplier) -> aRewMultiplier * bRewMultiplier)
+        .orElse(1d);
+  }
+
+  private static Double addBonus(Symbol bonus, Double reward) {
+    if (bonus == null) {
+      return reward;
+    }
+    if (bonus.getRewardMultiplier() != null ) {
+      return reward * bonus.getRewardMultiplier();
+    } else {
+      return reward + bonus.getExtra();
+    }
+  }
+
   @Override
-  public Long getReward(Long betAmount, Map<String, List<WinCombination>> winCombinations, Symbol bonus) {
-    return null;
+  public Double getReward(Double betAmount, Map<String, List<WinCombination>> winCombinations, Symbol bonus) {
+    final var reward = getWinCombinationsReward(betAmount, winCombinations);
+    return addBonus(bonus, reward);
   }
 
   @Override
@@ -41,6 +60,7 @@ public class SimpleGameEngine
     final var flatMatrix = matrix.stream()
         .flatMap(List::stream)
         .toList();
+    
     for(var cell : flatMatrix) {
       final var symbol = gameConfig.getSymbols().get(cell);
       if (symbol.getType() == SymbolType.BONUS) {
@@ -48,5 +68,23 @@ public class SimpleGameEngine
       }
     }
     return null;
+  }
+
+  private Double getWinCombinationsReward(Double betAmount, Map<String, List<WinCombination>> winCombinations) {
+    return winCombinations.entrySet()
+        .stream()
+        .map(winCombination -> {
+          final var combinations = winCombination.getValue();
+          var combinationsMultiplier = getCombinationsMultiplier(combinations);
+          final var rewardMultiplier = getSymbol(winCombination).getRewardMultiplier();
+          return betAmount * rewardMultiplier * combinationsMultiplier;
+        })
+        .reduce(Double::sum)
+        .orElse(0d);
+  }
+
+  private Symbol getSymbol(Entry<String, List<WinCombination>> winCombination) {
+    return gameConfig.getSymbols()
+        .getOrDefault(winCombination.getKey(), new Symbol(null, 1d, null, null, null));
   }
 }

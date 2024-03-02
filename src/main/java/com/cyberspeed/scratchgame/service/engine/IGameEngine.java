@@ -7,8 +7,8 @@ public interface IGameEngine<T, K, M, B> {
   M getMatrix();
 
   K getWinCombinations(M matrix);
-  
-  Long getReward(Long betAmount, K winCombinations, B bonus);
+
+  Double getReward(Double betAmount, K winCombinations, B bonus);
 
 
   B getBonus(M matrix);

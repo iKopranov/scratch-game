@@ -32,14 +32,14 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnWinCombinations() {
     // given
+    final var simpleGameEngine = new SimpleGameEngine();
+    simpleGameEngine.initGame(gameConfig);
+
     var matrix = List.of(
         List.of("A", "A", "B"),
         List.of("A", "+1000", "B"),
         List.of("A", "A", "B")
     );
-
-    final var simpleGameEngine = new SimpleGameEngine();
-    simpleGameEngine.initGame(gameConfig);
     
     // when
     final var winCombinations = simpleGameEngine.getWinCombinations(matrix);
@@ -55,14 +55,14 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnBonusSymbol() {
     // given
+    final var simpleGameEngine = new SimpleGameEngine();
+    simpleGameEngine.initGame(gameConfig);
+    
     var matrix = List.of(
         List.of("A", "A", "B"),
         List.of("A", "+1000", "B"),
         List.of("A", "A", "B")
     );
-
-    final var simpleGameEngine = new SimpleGameEngine();
-    simpleGameEngine.initGame(gameConfig);
 
     // when
     final var bonus = simpleGameEngine.getBonus(matrix);
@@ -79,25 +79,19 @@ class SimpleGameEngineTest {
     final var simpleGameEngine = new SimpleGameEngine();
     simpleGameEngine.initGame(gameConfig);
     
-    var matrix = List.of(
-        List.of("A", "B", "C"),
-        List.of("E", "B", "10x"),
-        List.of("F", "D", "B")
-    );
-    
     var winCombinations = Map.of(
-        "B", List.of(new WinCombination("same_symbol_5_times", 1d, "same_symbols", 3, "same_symbols"))
+        "B", List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3, "same_symbols"))
     );
     
-    var symbol = new Symbol("10x", 10d, SymbolType.BONUS, null, "multiply_reward");
+    var bonus = new Symbol("10x", 10d, SymbolType.BONUS, null, "multiply_reward");
 
     // when
     final var reward = 
-        simpleGameEngine.getReward(100L, winCombinations, symbol);
+        simpleGameEngine.getReward(100d, winCombinations, bonus);
 
     // then
 
-    assertEquals(50000L, reward);
+    assertEquals(25000d, reward);
   }
 
 }

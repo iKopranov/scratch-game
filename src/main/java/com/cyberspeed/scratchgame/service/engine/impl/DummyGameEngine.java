@@ -26,8 +26,8 @@ public class DummyGameEngine implements IGameEngine<String, Map<String, List<Str
   }
 
   @Override
-  public Long getReward(Long betAmount, Map<String, List<String>> winCombinations, String bonus) {
-    return 50000L;
+  public Double getReward(Double betAmount, Map<String, List<String>> winCombinations, String bonus) {
+    return 50000d;
   }
 
   @Override

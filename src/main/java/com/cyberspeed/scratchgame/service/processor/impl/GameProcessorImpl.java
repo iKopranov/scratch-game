@@ -21,7 +21,7 @@ public class GameProcessorImpl implements
   }
 
   @Override
-  public GameResult getGameResult(List<List<String>> matrix, Long reward, Map<String, List<String>> winCombinations, String bonus) {
+  public GameResult getGameResult(List<List<String>> matrix, Double reward, Map<String, List<String>> winCombinations, String bonus) {
     return new GameResultImpl(matrix, reward, winCombinations, bonus);
   }
 }

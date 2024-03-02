@@ -6,7 +6,7 @@ import java.util.Map;
 public interface GameResult {
 
   List<List<String>> getMatrix();
-  Long getReward();
+  Double getReward();
   Map<String, List<String>> getAppliedWinningCombinations();
   String getAppliedBonusSymbol();
 
