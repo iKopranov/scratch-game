@@ -2,5 +2,5 @@ package com.cyberspeed.scratchgame.service;
 
 public interface ProbabilityService<T> {
   
-  T getRandomSymbol();
+  T getRandomSymbol(Integer column, Integer row);
 }
