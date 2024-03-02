@@ -2,6 +2,7 @@ package com.cyberspeed.scratchgame.service.engine.impl;
 
 import com.cyberspeed.scratchgame.model.GameConfig;
 import com.cyberspeed.scratchgame.model.Symbol;
+import com.cyberspeed.scratchgame.model.SymbolType;
 import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.engine.IGameEngine;
 import java.util.List;
@@ -12,9 +13,10 @@ public class SimpleGameEngine
     implements IGameEngine<GameConfig, Map<String, List<WinCombination>>, List<List<String>>, Symbol> {
   
   private GameConfig gameConfig;
-
+  
   @Override
   public void initGame(GameConfig config) {
+    config.getSymbols().forEach((key, value) -> value.setName(key));
     this.gameConfig = config;
   }
 
@@ -36,6 +38,15 @@ public class SimpleGameEngine
 
   @Override
   public Symbol getBonus(List<List<String>> matrix) {
+    final var flatMatrix = matrix.stream()
+        .flatMap(List::stream)
+        .toList();
+    for(var cell : flatMatrix) {
+      final var symbol = gameConfig.getSymbols().get(cell);
+      if (symbol.getType() == SymbolType.BONUS) {
+        return symbol;
+      }
+    }
     return null;
   }
 }
