@@ -16,4 +16,21 @@ public class GameResultImpl implements GameResult {
   private Double reward;
   private Map<String, List<String>> appliedWinningCombinations;
   private String appliedBonusSymbol;
+
+  @Override
+  public String toString() {
+    var stringBuilder = new StringBuilder();
+    stringBuilder.append("Matrix:\n");
+    for (List<String> row : matrix) {
+      stringBuilder.append(row).append("\n");
+    }
+    stringBuilder.append("Reward: ").append(reward).append("\n");
+    stringBuilder.append("Applied Winning Combinations:\n");
+    
+    for (Map.Entry<String, List<String>> entry : appliedWinningCombinations.entrySet()) {
+      stringBuilder.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+    }
+    stringBuilder.append("Applied Bonus Symbol: ").append(appliedBonusSymbol).append("\n");
+    return stringBuilder.toString();
+  }
 }
