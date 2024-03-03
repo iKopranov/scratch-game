@@ -4,6 +4,7 @@ import com.cyberspeed.scratchgame.model.GameConfig;
 import com.cyberspeed.scratchgame.model.Symbol;
 import com.cyberspeed.scratchgame.model.SymbolType;
 import com.cyberspeed.scratchgame.model.WinCombination;
+import com.cyberspeed.scratchgame.service.ProbabilityService;
 import com.cyberspeed.scratchgame.service.engine.IGameEngine;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,6 +18,12 @@ public class SimpleGameEngine
     implements IGameEngine<GameConfig, Map<String, List<WinCombination>>, List<List<String>>, Symbol> {
   
   private GameConfig gameConfig;
+  private final ProbabilityService<String> probabilityService;
+  
+  public SimpleGameEngine(GameConfig gameConfig, ProbabilityService<String> probabilityService) {
+    initGame(gameConfig);
+    this.probabilityService = probabilityService;
+  }
   
   @Override
   public void initGame(GameConfig config) {
@@ -27,7 +34,15 @@ public class SimpleGameEngine
 
   @Override
   public List<List<String>> getMatrix() {
-    return null;
+    var matrix = new ArrayList<List<String>>();
+    for (int column = 0; column < 3; column++) {
+      var rowList = new ArrayList<String>();
+      for (int row = 0; row < 3; row++) {
+        rowList.add(probabilityService.getRandomSymbol(column, row));
+      }
+      matrix.add(rowList);
+    }
+    return matrix;
   }
 
   @Override

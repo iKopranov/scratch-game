@@ -6,6 +6,7 @@ import com.cyberspeed.scratchgame.model.GameConfig;
 import com.cyberspeed.scratchgame.model.Symbol;
 import com.cyberspeed.scratchgame.model.SymbolType;
 import com.cyberspeed.scratchgame.model.WinCombination;
+import com.cyberspeed.scratchgame.service.impl.ProbabilityServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.File;
@@ -32,9 +33,8 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnWinCombinations() {
     // given
-    final var simpleGameEngine = new SimpleGameEngine();
-    simpleGameEngine.initGame(gameConfig);
-
+    final var simpleGameEngine = 
+        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     var matrix = List.of(
         List.of("A", "A", "B"),
         List.of("A", "+1000", "B"),
@@ -48,16 +48,14 @@ class SimpleGameEngineTest {
     var expectedWinCombinations = Map.of("A", List.of(new WinCombination("same_symbol_5_times", 2D, "same_symbols", 5L, "same_symbols")),
         "B", List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3L, "same_symbols"))
         );
-    
     assertEquals(expectedWinCombinations, winCombinations);
   }
 
   @Test
   void shouldReturnBonusSymbol() {
     // given
-    final var simpleGameEngine = new SimpleGameEngine();
-    simpleGameEngine.initGame(gameConfig);
-    
+    final var simpleGameEngine =
+        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     var matrix = List.of(
         List.of("A", "A", "B"),
         List.of("A", "+1000", "B"),
@@ -69,20 +67,18 @@ class SimpleGameEngineTest {
 
     // then
     var expected = new Symbol("+1000", null, SymbolType.BONUS, 1000d, "extra_bonus");
-
     assertEquals(expected, bonus);
   }
 
   @Test
   void shouldReturnReward() {
     // given
-    final var simpleGameEngine = new SimpleGameEngine();
-    simpleGameEngine.initGame(gameConfig);
+    final var simpleGameEngine =
+        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     
     var winCombinations = Map.of(
         "B", List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3L, "same_symbols"))
     );
-    
     var bonus = new Symbol("10x", 10d, SymbolType.BONUS, null, "multiply_reward");
 
     // when
@@ -90,8 +86,22 @@ class SimpleGameEngineTest {
         simpleGameEngine.getReward(100d, winCombinations, bonus);
 
     // then
-
     assertEquals(25000d, reward);
   }
-
+  
+  @Test
+  void shouldReturnMatrix() {
+    // given
+    final var simpleGameEngine =
+        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
+    
+    // when
+    final var matrix = simpleGameEngine.getMatrix();
+    
+    // then
+    assertEquals(3, matrix.size());
+    for (List<String> row : matrix) {
+      assertEquals(3, row.size());
+    }
+  }
 }
