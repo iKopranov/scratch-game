@@ -13,14 +13,14 @@ public class Probabilities {
   private BonusSymbolProbability bonusSymbols;
 
   @Data
-  static class StandardSymbolProbability {
+  public static class StandardSymbolProbability {
     private int column;
     private int row;
     private Map<String, Integer> symbols;
   }
 
   @Data
-  static class BonusSymbolProbability {
+  public static class BonusSymbolProbability {
     private Map<String, Integer> symbols;
   }
 }
