@@ -16,4 +16,12 @@ public class Symbol {
   private SymbolType type;
   private Double extra;
   private String impact;
+  
+  public Double addBonus(Double reward) {
+    if (this.rewardMultiplier != null ) {
+      return reward * this.rewardMultiplier;
+    } else {
+      return reward + this.getExtra();
+    }
+  }
 }

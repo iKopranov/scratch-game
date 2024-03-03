@@ -61,23 +61,6 @@ public class SimpleGameEngine
         .orElse(1d);
   }
 
-  private static Double addBonus(Symbol bonus, Double reward) {
-    if (bonus == null) {
-      return reward;
-    }
-    if (bonus.getRewardMultiplier() != null ) {
-      return reward * bonus.getRewardMultiplier();
-    } else {
-      return reward + bonus.getExtra();
-    }
-  }
-
-  @Override
-  public Double getReward(Double betAmount, Map<String, List<WinCombination>> winCombinations, Symbol bonus) {
-    final var reward = getWinCombinationsReward(betAmount, winCombinations);
-    return addBonus(bonus, reward);
-  }
-
   @Override
   public Symbol getBonus(List<List<String>> matrix) {
     final var flatMatrix = matrix.stream()
@@ -93,6 +76,15 @@ public class SimpleGameEngine
     return null;
   }
 
+  @Override
+  public Double getReward(Double betAmount, Map<String, List<WinCombination>> winCombinations, Symbol bonus) {
+    final var reward = getWinCombinationsReward(betAmount, winCombinations);
+    if (bonus == null) {
+      return reward;
+    }
+    return bonus.addBonus(reward);
+  }
+  
   private Double getWinCombinationsReward(Double betAmount, Map<String, List<WinCombination>> winCombinations) {
     return winCombinations.entrySet()
         .stream()
