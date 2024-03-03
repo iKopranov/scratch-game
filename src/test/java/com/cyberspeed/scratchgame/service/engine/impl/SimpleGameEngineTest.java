@@ -1,6 +1,7 @@
 package com.cyberspeed.scratchgame.service.engine.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.cyberspeed.scratchgame.model.GameConfig;
 import com.cyberspeed.scratchgame.model.Symbol;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,6 +54,24 @@ class SimpleGameEngineTest {
   }
 
   @Test
+  void shouldReturnEmptyWinCombinations() {
+    // given
+    final var simpleGameEngine =
+        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
+    var matrix = List.of(
+        List.of("D", "A", "B"),
+        List.of("C", "+1000", "E"),
+        List.of("F", "F", "B")
+    );
+
+    // when
+    final var winCombinations = simpleGameEngine.getWinCombinations(matrix);
+
+    // then
+    assertTrue(winCombinations.isEmpty());
+  }
+
+  @Test
   void shouldReturnBonusSymbol() {
     // given
     final var simpleGameEngine =
@@ -87,6 +107,23 @@ class SimpleGameEngineTest {
 
     // then
     assertEquals(25000d, reward);
+  }
+
+  @Test
+  void shouldReturnRewardZeroWhenWinCombinationsAreEmpty() {
+    // given
+    final var simpleGameEngine =
+        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
+
+    var winCombinations = new HashMap<String, List<WinCombination>>();
+    var bonus = new Symbol("10x", 10d, SymbolType.BONUS, null, "multiply_reward");
+
+    // when
+    final var reward =
+        simpleGameEngine.getReward(100d, winCombinations, bonus);
+
+    // then
+    assertEquals(0d, reward);
   }
   
   @Test
