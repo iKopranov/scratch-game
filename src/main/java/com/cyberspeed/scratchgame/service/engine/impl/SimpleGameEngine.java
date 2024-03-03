@@ -13,10 +13,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
-
+@Getter
 public class SimpleGameEngine 
     implements IGameEngine<GameConfig, Map<String, List<WinCombination>>, List<List<String>>, Symbol> {
+  
+  private static final String SAME_SYMBOLS_GROUP = "same_symbols";
   
   private GameConfig gameConfig;
   private final ProbabilityService<String> probabilityService;
@@ -35,22 +38,20 @@ public class SimpleGameEngine
 
   @Override
   public List<List<String>> getMatrix() {
-    var matrix = new ArrayList<List<String>>();
-    for (int column = 0; column < 3; column++) {
-      var rowList = new ArrayList<String>();
-      for (int row = 0; row < 3; row++) {
-        rowList.add(probabilityService.getRandomSymbol(column, row, false));
-      }
-      matrix.add(rowList);
-    }
-    addBonusSymbol(matrix);
-    return matrix;
+    return getMatrix(3, 3);
   }
 
   @Override
   public Map<String, List<WinCombination>> getWinCombinations(List<List<String>> matrix) {
     var symbolWinCombinations = new HashMap<String, List<WinCombination>>();
-    
+
+    addSameSymbolWinCombinations(matrix, symbolWinCombinations);
+    return symbolWinCombinations;
+  }
+
+  protected void addSameSymbolWinCombinations(
+      List<List<String>> matrix, HashMap<String, List<WinCombination>> symbolWinCombinations
+  ) {
     final var symbolCounts = matrix.stream()
         .flatMap(List::stream)
         .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
@@ -58,8 +59,9 @@ public class SimpleGameEngine
     final var winCombinations = gameConfig.getWinCombinations()
         .values()
         .stream()
+        .filter(winCombination -> SAME_SYMBOLS_GROUP.equals(winCombination.getGroup()))
         .collect(Collectors.groupingBy(WinCombination::getCount));
-    
+
     for (var symbol : symbolCounts.keySet()) {
       var symbolCount = symbolCounts.get(symbol);
       if (winCombinations.containsKey(symbolCount)) {
@@ -67,8 +69,6 @@ public class SimpleGameEngine
             .addAll(winCombinations.get(symbolCount));
       }
     }
-    
-    return symbolWinCombinations;
   }
 
   private static Double getCombinationsMultiplier(List<WinCombination> combinations) {
@@ -126,5 +126,18 @@ public class SimpleGameEngine
   private Symbol getSymbol(Entry<String, List<WinCombination>> winCombination) {
     return gameConfig.getSymbols()
         .getOrDefault(winCombination.getKey(), new Symbol(null, 1d, null, null, null));
+  }
+
+  protected ArrayList<List<String>> getMatrix(Integer columnSize, Integer rowSize) {
+    var matrix = new ArrayList<List<String>>();
+    for (int column = 0; column < columnSize; column++) {
+      var rowList = new ArrayList<String>();
+      for (int row = 0; row < rowSize; row++) {
+        rowList.add(probabilityService.getRandomSymbol(column, row, false));
+      }
+      matrix.add(rowList);
+    }
+    addBonusSymbol(matrix);
+    return matrix;
   }
 }

@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GameConfig {
-
+  
+  private Integer columns;
+  private Integer rows;
   private Map<String, Symbol> symbols;
   private Probabilities probabilities;
   @JsonProperty("win_combinations")

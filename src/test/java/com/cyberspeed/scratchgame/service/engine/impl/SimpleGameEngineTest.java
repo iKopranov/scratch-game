@@ -48,9 +48,9 @@ class SimpleGameEngineTest {
 
     // then
     var expectedWinCombinations = Map.of("A",
-        List.of(new WinCombination("same_symbol_5_times", 2d, "same_symbols", 5L, "same_symbols")),
+        List.of(new WinCombination("same_symbol_5_times", 2d, "same_symbols", 5L, "same_symbols", null)),
         "B",
-        List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3L, "same_symbols"))
+        List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3L, "same_symbols", null))
     );
     assertEquals(expectedWinCombinations, winCombinations);
   }
@@ -101,7 +101,7 @@ class SimpleGameEngineTest {
     var winCombinations = Map.of(
         "A", List.of(
             new WinCombination(
-                "same_symbol_5_times", 2d, "same_symbols", 5L, "same_symbols")
+                "same_symbol_5_times", 2d, "same_symbols", 5L, "same_symbols", null)
         )
     );
     var bonus = new Symbol("+500", null, SymbolType.BONUS, 500d, "multiply_reward");
