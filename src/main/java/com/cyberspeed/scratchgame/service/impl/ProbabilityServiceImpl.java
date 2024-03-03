@@ -5,6 +5,7 @@ import com.cyberspeed.scratchgame.model.Probabilities.StandardSymbolProbability;
 import com.cyberspeed.scratchgame.service.ProbabilityService;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 
 public class ProbabilityServiceImpl implements ProbabilityService<String> {
@@ -16,20 +17,28 @@ public class ProbabilityServiceImpl implements ProbabilityService<String> {
   }
 
   @Override
-  public String getRandomSymbol(Integer column, Integer row) {
-    final var standardSymbolProbability = getStandardSymbolProbability(column, row);
-    final var totalProbability = getTotalProbability(standardSymbolProbability);
+  public String getRandomSymbol(Integer column, Integer row, Boolean isBonus) {
+    final var symbolsProbabilities = getSymbolsProbabilities(column, row, isBonus);
+      final var totalProbability = getTotalProbability(symbolsProbabilities);
 
-    var probabilityPercentage = new HashMap<String, Double>();
-    for (Map.Entry<String, Integer> entry : standardSymbolProbability.getSymbols().entrySet()) {
-      double probability = Double.valueOf(entry.getValue()) / totalProbability * 100;
-      probabilityPercentage.put(entry.getKey(), probability);
+      var probabilityPercentage = new HashMap<String, Double>();
+      for (Map.Entry<String, Integer> entry : symbolsProbabilities.entrySet()) {
+        double probability = Double.valueOf(entry.getValue()) / totalProbability * 100;
+        probabilityPercentage.put(entry.getKey(), probability);
+      }
+      return selectSymbol(probabilityPercentage);
+  }
+  
+  private Map<String, Integer> getSymbolsProbabilities(Integer column, Integer row, Boolean isBonus) {
+    if (isBonus) {
+      return probabilities.getBonusSymbols().getSymbols();
+    } else {
+      return getStandardSymbolProbability(column, row).getSymbols();
     }
-    return selectSymbol(probabilityPercentage);
   }
 
-  private Integer getTotalProbability(StandardSymbolProbability standardSymbolProbability) {
-    return standardSymbolProbability.getSymbols()
+  private Integer getTotalProbability(Map<String, Integer> symbols) {
+    return symbols
         .values()
         .stream()
         .reduce(Integer::sum)
@@ -43,21 +52,25 @@ public class ProbabilityServiceImpl implements ProbabilityService<String> {
             && row.compareTo(probability.getRow()) == 0)
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException(
-                "Standard symbol probability doesnt exist for column %d and row %d"
-                    .formatted(column, row)
+                "Symbol probability doesnt exist for column %d and row %d".formatted(column, row)
             )
         );
   }
 
   private String selectSymbol(Map<String, Double> probabilities) {
     var random = new Random().nextDouble() * 100;
-    var cumulativeProbability = 0;
+    double cumulativeProbability = 0d;
     for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
       cumulativeProbability += entry.getValue();
       if (random <= cumulativeProbability) {
         return entry.getKey();
       }
     }
-    return null;
+    return probabilities.entrySet()
+        .stream()
+        .sorted((a1, a2) -> a2.getValue().compareTo(a1.getValue()))
+        .map(Entry::getKey)
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("Last symbol probability doesnt exist"));
   }
 }

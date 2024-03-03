@@ -20,8 +20,10 @@ public class Symbol {
   public Double addBonus(Double reward) {
     if (this.rewardMultiplier != null ) {
       return reward * this.rewardMultiplier;
+    } else if (this.extra != null) {
+      return reward + this.extra;
     } else {
-      return reward + this.getExtra();
+      return reward;
     }
   }
 }

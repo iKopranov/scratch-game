@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 
@@ -38,11 +39,20 @@ public class SimpleGameEngine
     for (int column = 0; column < 3; column++) {
       var rowList = new ArrayList<String>();
       for (int row = 0; row < 3; row++) {
-        rowList.add(probabilityService.getRandomSymbol(column, row));
+        rowList.add(probabilityService.getRandomSymbol(column, row, false));
       }
       matrix.add(rowList);
     }
+    addBonusSymbol(matrix);
     return matrix;
+  }
+
+  private void addBonusSymbol(ArrayList<List<String>> matrix) {
+    final var random = new Random();
+    var randomRow = random.nextInt(3);
+    var randomColumn = random.nextInt(3);
+    matrix.get(randomRow)
+        .set(randomColumn, probabilityService.getRandomSymbol(randomRow, randomColumn, true));
   }
 
   @Override
