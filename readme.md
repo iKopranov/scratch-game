@@ -330,3 +330,28 @@ Note: Please make sure there are no errors while building (all test cases should
 |----------------|----------------------------------------------------|
 | config         | config file which is described top of the document |
 | betting amount | betting amount                                     |
+
+Home Assignment: Scratch Game Implementation
+===============================
+
+### Description
+
+This project implements Scratch Game
+
+### Requirements
+
+Java 17+
+
+### Build project
+
+```shell
+./gradlew clean shadowJar
+```
+
+### Run project
+
+```shell
+java -jar build/libs/scratch-game-1.0-SNAPSHOT-all.jar \
+    --config=<path/to/config/file> \
+    --betting-amount=<bet-amount>
+```
