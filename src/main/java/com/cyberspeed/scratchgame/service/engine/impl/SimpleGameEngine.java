@@ -107,7 +107,7 @@ public class SimpleGameEngine
     if (bonus == null) {
       return reward;
     }
-    return bonus.addBonus(reward);
+    return winCombinations.isEmpty() ? reward : bonus.addBonus(reward);
   }
   
   private Double getWinCombinationsReward(Double betAmount, Map<String, List<WinCombination>> winCombinations) {
