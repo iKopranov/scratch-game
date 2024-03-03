@@ -7,6 +7,8 @@ import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.engine.facotry.IGameProcessorFactory;
 import com.cyberspeed.scratchgame.service.engine.impl.SimpleGameEngine;
 import com.cyberspeed.scratchgame.service.impl.ProbabilityServiceImpl;
+import com.cyberspeed.scratchgame.service.impl.SameSymbolWinCombinationsAdder;
+import com.cyberspeed.scratchgame.service.impl.SameSymbolsHorizontallyWinCombinationsAdder;
 import com.cyberspeed.scratchgame.service.processor.IGameProcessor;
 import com.cyberspeed.scratchgame.service.processor.impl.GameProcessorImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +36,16 @@ public class GameProcessorFactoryImpl implements IGameProcessorFactory<GameConfi
   
   @Override
   public IGameProcessor<GameConfig, Map<String, List<WinCombination>>, List<List<String>>, Symbol, GameResult> create() {
-    return new GameProcessorImpl(new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities())));
+    final var sameSymbolWinCombinationsAdder = new SameSymbolWinCombinationsAdder(gameConfig);
+    final var horizontallyWinCombinationsAdder = new SameSymbolsHorizontallyWinCombinationsAdder(gameConfig);
+    return new GameProcessorImpl(
+        new SimpleGameEngine(
+            gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()), 
+            Map.of(
+                sameSymbolWinCombinationsAdder.getName(), sameSymbolWinCombinationsAdder,
+                horizontallyWinCombinationsAdder.getName(), horizontallyWinCombinationsAdder
+            )
+        )
+    );
   }
 }

@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.cyberspeed.scratchgame.model.GameConfig;
 import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.impl.ProbabilityServiceImpl;
+import com.cyberspeed.scratchgame.service.impl.SameSymbolWinCombinationsAdder;
+import com.cyberspeed.scratchgame.service.impl.SameSymbolsHorizontallyWinCombinationsAdder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.File;
@@ -20,20 +22,27 @@ class AdvancedGameEngineTest {
       System.getProperty("user.dir") + "/src/test/resources/advanced-config.json";
   private static final ObjectMapper objectMapper = new ObjectMapper();
   private static GameConfig gameConfig;
+  private static AdvancedGameEngine gameEngine;
 
   @BeforeAll
   static void init() throws IOException {
     objectMapper.setPropertyNamingStrategy(new PropertyNamingStrategies.SnakeCaseStrategy());
     var file = new File(SOURCE_FILE_PATH);
     gameConfig = objectMapper.readValue(file, GameConfig.class);
+
+    final var sameSymbolWinCombinationsAdder = new SameSymbolWinCombinationsAdder(gameConfig);
+    final var horizontallyWinCombinationsAdder = new SameSymbolsHorizontallyWinCombinationsAdder(gameConfig);
+
+    gameEngine =
+        new AdvancedGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()), Map.of(
+            sameSymbolWinCombinationsAdder.getName(), sameSymbolWinCombinationsAdder,
+            horizontallyWinCombinationsAdder.getName(), horizontallyWinCombinationsAdder
+        ));
   }
 
   @Test
   void shouldReturnMatrix() {
     // given
-    final var gameEngine =
-        new AdvancedGameEngine(gameConfig,
-            new ProbabilityServiceImpl(gameConfig.getProbabilities()));
 
     // when
     final var matrix = gameEngine.getMatrix();
@@ -48,9 +57,6 @@ class AdvancedGameEngineTest {
   @Test
   void shouldReturnSameSymbolWinCombinations() {
     // given
-    final var gameEngine =
-        new AdvancedGameEngine(gameConfig,
-            new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     var matrix = List.of(
         List.of("A", "A", "B", "F"),
         List.of("A", "+1000", "B", "C"),
@@ -74,9 +80,6 @@ class AdvancedGameEngineTest {
   @Test
   void shouldReturnHorizontallyLinearWinCombinations() {
     // given
-    final var gameEngine =
-        new AdvancedGameEngine(gameConfig,
-            new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     var matrix = List.of(
         List.of("F", "A", "B", "F"),
         List.of("A", "+1000", "B", "C"),

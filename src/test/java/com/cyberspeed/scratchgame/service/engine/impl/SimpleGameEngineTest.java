@@ -8,6 +8,8 @@ import com.cyberspeed.scratchgame.model.Symbol;
 import com.cyberspeed.scratchgame.model.SymbolType;
 import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.impl.ProbabilityServiceImpl;
+import com.cyberspeed.scratchgame.service.impl.SameSymbolWinCombinationsAdder;
+import com.cyberspeed.scratchgame.service.impl.SameSymbolsHorizontallyWinCombinationsAdder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.File;
@@ -24,19 +26,26 @@ class SimpleGameEngineTest {
       System.getProperty("user.dir") + "/src/test/resources/config.json";
   private static final ObjectMapper objectMapper = new ObjectMapper();
   private static GameConfig gameConfig;
+  private static SimpleGameEngine simpleGameEngine;
 
   @BeforeAll
   static void init() throws IOException {
     objectMapper.setPropertyNamingStrategy(new PropertyNamingStrategies.SnakeCaseStrategy());
     var file = new File(SOURCE_FILE_PATH);
     gameConfig = objectMapper.readValue(file, GameConfig.class);
+    final var sameSymbolWinCombinationsAdder = new SameSymbolWinCombinationsAdder(gameConfig);
+    final var horizontallyWinCombinationsAdder = new SameSymbolsHorizontallyWinCombinationsAdder(gameConfig);
+
+    simpleGameEngine =
+        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()), Map.of(
+            sameSymbolWinCombinationsAdder.getName(), sameSymbolWinCombinationsAdder,
+            horizontallyWinCombinationsAdder.getName(), horizontallyWinCombinationsAdder
+        ));
   }
 
   @Test
   void shouldReturnWinCombinations() {
     // given
-    final var simpleGameEngine =
-        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     var matrix = List.of(
         List.of("A", "A", "B"),
         List.of("A", "+1000", "B"),
@@ -58,8 +67,6 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnEmptyWinCombinations() {
     // given
-    final var simpleGameEngine =
-        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     var matrix = List.of(
         List.of("D", "A", "B"),
         List.of("C", "+1000", "E"),
@@ -76,8 +83,6 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnBonusSymbol() {
     // given
-    final var simpleGameEngine =
-        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
     var matrix = List.of(
         List.of("A", "A", "B"),
         List.of("A", "+1000", "B"),
@@ -95,9 +100,6 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnRewardWhenWinCombinationsExist() {
     // given
-    final var simpleGameEngine =
-        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
-
     var winCombinations = Map.of(
         "A", List.of(
             new WinCombination(
@@ -117,9 +119,6 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnRewardZeroWhenWinCombinationsAreEmptyAndBonusExtra() {
     // given
-    final var simpleGameEngine =
-        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
-
     var winCombinations = new HashMap<String, List<WinCombination>>();
     var bonus = new Symbol("+500", null, SymbolType.BONUS, 500d, "multiply_reward");
 
@@ -134,9 +133,6 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnRewardZeroWhenWinCombinationsAreEmpty() {
     // given
-    final var simpleGameEngine =
-        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
-
     var winCombinations = new HashMap<String, List<WinCombination>>();
     var bonus = new Symbol("10x", 10d, SymbolType.BONUS, null, "multiply_reward");
 
@@ -151,8 +147,6 @@ class SimpleGameEngineTest {
   @Test
   void shouldReturnMatrix() {
     // given
-    final var simpleGameEngine =
-        new SimpleGameEngine(gameConfig, new ProbabilityServiceImpl(gameConfig.getProbabilities()));
 
     // when
     final var matrix = simpleGameEngine.getMatrix();

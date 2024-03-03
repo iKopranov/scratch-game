@@ -1,10 +1,13 @@
 package com.cyberspeed.scratchgame.service.engine.impl;
 
+import static com.cyberspeed.scratchgame.service.impl.SameSymbolWinCombinationsAdder.SAME_SYMBOLS_NAME;
+
 import com.cyberspeed.scratchgame.model.GameConfig;
 import com.cyberspeed.scratchgame.model.Symbol;
 import com.cyberspeed.scratchgame.model.SymbolType;
 import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.ProbabilityService;
+import com.cyberspeed.scratchgame.service.WinCombinationsAdder;
 import com.cyberspeed.scratchgame.service.engine.IGameEngine;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,21 +15,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import java.util.stream.Collectors;
 import lombok.Getter;
 
 @Getter
 public class SimpleGameEngine 
     implements IGameEngine<GameConfig, Map<String, List<WinCombination>>, List<List<String>>, Symbol> {
   
-  private static final String SAME_SYMBOLS_GROUP = "same_symbols";
-  
   private GameConfig gameConfig;
   private final ProbabilityService<String> probabilityService;
+  private final Map<String,WinCombinationsAdder> winCombinations;
   
-  public SimpleGameEngine(GameConfig gameConfig, ProbabilityService<String> probabilityService) {
+  public SimpleGameEngine(
+      GameConfig gameConfig, ProbabilityService<String> probabilityService,
+      Map<String,WinCombinationsAdder> winCombinations
+  ) {
     initGame(gameConfig);
     this.probabilityService = probabilityService;
+    this.winCombinations = winCombinations;
   }
   
   @Override
@@ -45,30 +50,8 @@ public class SimpleGameEngine
   public Map<String, List<WinCombination>> getWinCombinations(List<List<String>> matrix) {
     var symbolWinCombinations = new HashMap<String, List<WinCombination>>();
 
-    addSameSymbolWinCombinations(matrix, symbolWinCombinations);
+    winCombinations.get(SAME_SYMBOLS_NAME).addWinCombinations(matrix, symbolWinCombinations);
     return symbolWinCombinations;
-  }
-
-  protected void addSameSymbolWinCombinations(
-      List<List<String>> matrix, HashMap<String, List<WinCombination>> symbolWinCombinations
-  ) {
-    final var symbolCounts = matrix.stream()
-        .flatMap(List::stream)
-        .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
-
-    final var winCombinations = gameConfig.getWinCombinations()
-        .values()
-        .stream()
-        .filter(winCombination -> SAME_SYMBOLS_GROUP.equals(winCombination.getGroup()))
-        .collect(Collectors.groupingBy(WinCombination::getCount));
-
-    for (var symbol : symbolCounts.keySet()) {
-      var symbolCount = symbolCounts.get(symbol);
-      if (winCombinations.containsKey(symbolCount)) {
-        symbolWinCombinations.computeIfAbsent(symbol, k -> new ArrayList<>())
-            .addAll(winCombinations.get(symbolCount));
-      }
-    }
   }
 
   private static Double getCombinationsMultiplier(List<WinCombination> combinations) {
