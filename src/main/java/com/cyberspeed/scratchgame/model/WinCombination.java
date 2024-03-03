@@ -11,6 +11,6 @@ public class WinCombination {
   private String name;
   private Double rewardMultiplier;
   private String when;
-  private Integer count;
+  private Long count;
   private String group;
 }

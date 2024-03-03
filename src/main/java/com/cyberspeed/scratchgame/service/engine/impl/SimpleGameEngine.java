@@ -5,9 +5,12 @@ import com.cyberspeed.scratchgame.model.Symbol;
 import com.cyberspeed.scratchgame.model.SymbolType;
 import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.engine.IGameEngine;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 
 public class SimpleGameEngine 
@@ -18,6 +21,7 @@ public class SimpleGameEngine
   @Override
   public void initGame(GameConfig config) {
     config.getSymbols().forEach((key, value) -> value.setName(key));
+    config.getWinCombinations().forEach((key, value) -> value.setName(key));
     this.gameConfig = config;
   }
 
@@ -28,7 +32,26 @@ public class SimpleGameEngine
 
   @Override
   public Map<String, List<WinCombination>> getWinCombinations(List<List<String>> matrix) {
-    return null;
+    var symbolWinCombinations = new HashMap<String, List<WinCombination>>();
+    
+    final var symbolCounts = matrix.stream()
+        .flatMap(List::stream)
+        .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+
+    final var winCombinations = gameConfig.getWinCombinations()
+        .values()
+        .stream()
+        .collect(Collectors.groupingBy(WinCombination::getCount));
+    
+    for (var symbol : symbolCounts.keySet()) {
+      var symbolCount = symbolCounts.get(symbol);
+      if (winCombinations.containsKey(symbolCount)) {
+        symbolWinCombinations.computeIfAbsent(symbol, k -> new ArrayList<>())
+            .addAll(winCombinations.get(symbolCount));
+      }
+    }
+    
+    return symbolWinCombinations;
   }
 
   private static Double getCombinationsMultiplier(List<WinCombination> combinations) {

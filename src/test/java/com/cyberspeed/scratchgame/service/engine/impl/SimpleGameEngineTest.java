@@ -7,7 +7,7 @@ import com.cyberspeed.scratchgame.model.Symbol;
 import com.cyberspeed.scratchgame.model.SymbolType;
 import com.cyberspeed.scratchgame.model.WinCombination;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +24,7 @@ class SimpleGameEngineTest {
   
   @BeforeAll
   static void init() throws IOException {
-    objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+    objectMapper.setPropertyNamingStrategy(new PropertyNamingStrategies.SnakeCaseStrategy());
     var file = new File(SOURCE_FILE_PATH);
     gameConfig = objectMapper.readValue(file, GameConfig.class);
   }
@@ -45,8 +45,8 @@ class SimpleGameEngineTest {
     final var winCombinations = simpleGameEngine.getWinCombinations(matrix);
     
     // then
-    var expectedWinCombinations = Map.of("A", List.of(new WinCombination("same_symbol_5_times", 2D, "same_symbols", 5, "same_symbols")),
-        "B", List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3, "same_symbols"))
+    var expectedWinCombinations = Map.of("A", List.of(new WinCombination("same_symbol_5_times", 2D, "same_symbols", 5L, "same_symbols")),
+        "B", List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3L, "same_symbols"))
         );
     
     assertEquals(expectedWinCombinations, winCombinations);
@@ -80,7 +80,7 @@ class SimpleGameEngineTest {
     simpleGameEngine.initGame(gameConfig);
     
     var winCombinations = Map.of(
-        "B", List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3, "same_symbols"))
+        "B", List.of(new WinCombination("same_symbol_3_times", 1d, "same_symbols", 3L, "same_symbols"))
     );
     
     var bonus = new Symbol("10x", 10d, SymbolType.BONUS, null, "multiply_reward");
