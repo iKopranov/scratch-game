@@ -47,14 +47,6 @@ public class SimpleGameEngine
     return matrix;
   }
 
-  private void addBonusSymbol(ArrayList<List<String>> matrix) {
-    final var random = new Random();
-    var randomRow = random.nextInt(3);
-    var randomColumn = random.nextInt(3);
-    matrix.get(randomRow)
-        .set(randomColumn, probabilityService.getRandomSymbol(randomRow, randomColumn, true));
-  }
-
   @Override
   public Map<String, List<WinCombination>> getWinCombinations(List<List<String>> matrix) {
     var symbolWinCombinations = new HashMap<String, List<WinCombination>>();
@@ -99,6 +91,14 @@ public class SimpleGameEngine
       }
     }
     return null;
+  }
+
+  private void addBonusSymbol(ArrayList<List<String>> matrix) {
+    final var random = new Random();
+    var randomRow = random.nextInt(3);
+    var randomColumn = random.nextInt(3);
+    matrix.get(randomRow)
+        .set(randomColumn, probabilityService.getRandomSymbol(randomRow, randomColumn, true));
   }
 
   @Override

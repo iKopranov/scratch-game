@@ -1,13 +1,17 @@
 package com.cyberspeed.scratchgame.service.engine.impl;
 
+import com.cyberspeed.scratchgame.model.GameConfig;
+import com.cyberspeed.scratchgame.model.Symbol;
+import com.cyberspeed.scratchgame.model.WinCombination;
 import com.cyberspeed.scratchgame.service.engine.IGameEngine;
 import java.util.List;
 import java.util.Map;
 
-public class DummyGameEngine implements IGameEngine<String, Map<String, List<String>>, List<List<String>>, String> {
+public class DummyGameEngine implements 
+    IGameEngine<GameConfig, Map<String, List<WinCombination>>, List<List<String>>, Symbol> {
 
   @Override
-  public void initGame(String config) {
+  public void initGame(GameConfig config) {
     
   }
 
@@ -21,17 +25,21 @@ public class DummyGameEngine implements IGameEngine<String, Map<String, List<Str
   }
 
   @Override
-  public Map<String, List<String>> getWinCombinations(List<List<String>> matrix) {
-    return Map.of("B", List.of("same_symbol_5_times"));
+  public Map<String, List<WinCombination>> getWinCombinations(List<List<String>> matrix) {
+    final var winCombination = new WinCombination();
+    winCombination.setName("same_symbol_5_times");
+    return Map.of("B", List.of(winCombination));
   }
 
   @Override
-  public Double getReward(Double betAmount, Map<String, List<String>> winCombinations, String bonus) {
+  public Double getReward(Double betAmount, Map<String, List<WinCombination>> winCombinations, Symbol bonus) {
     return 50000d;
   }
 
   @Override
-  public String getBonus(List<List<String>> matrix) {
-    return "10x";
+  public Symbol getBonus(List<List<String>> matrix) {
+    final var symbol = new Symbol();
+    symbol.setName("10x");
+    return symbol;
   }
 }
