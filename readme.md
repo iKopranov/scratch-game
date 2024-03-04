@@ -353,5 +353,6 @@ Java 17+
 ```shell
 java -jar build/libs/scratch-game-1.0-SNAPSHOT-all.jar \
     --config=<path/to/config/file> \
-    --betting-amount=<bet-amount>
+    --betting-amount=<bet-amount> \
+    --engine=<simple/advanced>
 ```
